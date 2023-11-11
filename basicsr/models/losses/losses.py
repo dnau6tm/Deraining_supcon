@@ -58,7 +58,12 @@ class L1Loss(nn.Module):
                 weights. Default: None.
         """
         fea_pred = self.extract_fea(pred)
+        max_pred = torch.max(fea_pred)
+        fea_pred = (fea_pred/max_pred)*255
+
         fea_target = self.extract_fea(target)
+        max_target = torch.max(fea_target)
+        fea_target = (fea_target/max_target)*255
 
         return self.loss_weight * l1_loss(
             fea_pred, fea_target, weight, reduction=self.reduction)
