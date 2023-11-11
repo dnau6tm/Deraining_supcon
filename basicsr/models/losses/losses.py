@@ -9,7 +9,7 @@ from basicsr import supconmodels
 
 _reduction_modes = ['none', 'mean', 'sum']
 
-ckpt = torch.load('/kaggle/input/pretrainedtrafficrain/supconresnet_10.pth')
+ckpt = torch.load('/kaggle/input/pretrainedtrafficrain/supconresnetVer2_20.pth')
 
 
 @weighted_loss
