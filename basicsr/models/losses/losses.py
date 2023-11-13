@@ -9,7 +9,7 @@ from basicsr import supconmodels
 
 _reduction_modes = ['none', 'mean', 'sum']
 
-ckpt = torch.load('/kaggle/input/pretrainedtrafficrain/supconresnetVer2_20.pth')
+ckpt = torch.load('/kaggle/input/pretrainedtrafficrain/supconresnet_10.pth')
 
 
 @weighted_loss
@@ -85,6 +85,9 @@ class MSELoss(nn.Module):
 
         self.loss_weight = loss_weight
         self.reduction = reduction
+        self.extract_fea = supconmodels.SupConResNet(name='resnet50')
+        self.extract_fea.load_state_dict(ckpt['model'])
+        self.extract_fea.eval()
 
     def forward(self, pred, target, weight=None, **kwargs):
         """
@@ -94,8 +97,16 @@ class MSELoss(nn.Module):
             weight (Tensor, optional): of shape (N, C, H, W). Element-wise
                 weights. Default: None.
         """
+        fea_pred = self.extract_fea(pred)
+        max_pred = torch.max(fea_pred)
+        fea_pred = (fea_pred/max_pred)*255
+
+        fea_target = self.extract_fea(target)
+        max_target = torch.max(fea_target)
+        fea_target = (fea_target/max_target)*255
+
         return self.loss_weight * mse_loss(
-            pred, target, weight, reduction=self.reduction)
+            fea_pred, fea_target, weight, reduction=self.reduction)
 
 class PSNRLoss(nn.Module):
 
